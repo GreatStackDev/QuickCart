@@ -21,7 +21,7 @@ This repo is **frontend only** – contributors can improve the design, add new 
 1. Clone the repo
 
     ```bash
-    git clone https://github.com/GreatStackDev/QuickCart.git
+    git clone https://github.com/jawid-asadi/QuickCart.git
     cd QuickCart
     ```
 
@@ -60,7 +60,7 @@ Check out [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
 
 ## License
 
-This project is licensed under the **MIT License**.
+This project is licensed under the **License**.
 
 ---
 
