@@ -38,6 +38,17 @@ This repo is **frontend only** – contributors can improve the design, add new 
     ```
 
 ---
+## 🐳 Run with Docker (Production)
+
+Build the Docker image:
+
+```bash
+docker build -t quickcart-prod .
+
+Run the container:
+docker run -p 3000:3000 quickcart-prod
+Then open:
+http://localhost:3000
 
 ## Contributing
 
