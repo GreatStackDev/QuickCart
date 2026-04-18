@@ -9,7 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "15.1.6",
+    "@clerk/nextjs": "^7.2.3",
+    "inngest": "^3.31.0",
+    "mongoose": "^9.4.1",
+    "next": "15.5.15",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hot-toast": "^2.5.1"
@@ -17,7 +20,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "eslint": "^9",
-    "eslint-config-next": "15.1.6",
+    "eslint-config-next": "15.5.15",
     "postcss": "^8",
     "tailwindcss": "^3.4.1"
   }
