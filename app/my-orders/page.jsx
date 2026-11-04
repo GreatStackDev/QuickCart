@@ -62,28 +62,28 @@ const MyOrders = () => {
                                     /> 
                                     <p className="flex flex-col gap-3"> 
                                         <span className="font-medium text-base"> 
-                                            {order.items.map((item) => item.product.name + ` x ${item.quantity}`).join(", ")} 
+                                            {order.items.map((item) => (item.product?.name || "Product") + (item.size ? ` (Size ${item.size})` : "") + ` x ${item.quantity}`).join(", ")} 
                                         </span> 
                                         <span>Items : {order.items.length}</span> 
                                     </p> 
                                 </div> 
                                 <div> 
                                     <p> 
-                                        <span className="font-medium">{order.address.fullName}</span> 
+                                        <span className="font-medium">{order.address?.fullName || "Address unavailable"}</span> 
                                         <br /> 
-                                        <span>{order.address.area}</span> 
+                                        <span>{order.address?.area || ""}</span> 
                                         <br /> 
-                                        <span>{`${order.address.city}, ${order.address.state}`}</span> 
+                                        <span>{`${order.address?.city || ""}, ${order.address?.state || ""}`}</span> 
                                         <br /> 
-                                        <span>{order.address.phoneNumber}</span> 
+                                        <span>{order.address?.phoneNumber || ""}</span> 
                                     </p> 
                                 </div> 
                                 <p className="font-medium my-auto">{currency}{order.amount}</p> 
                                 <div> 
                                     <p className="flex flex-col"> 
-                                        <span>Method : Paystack</span> 
+                                        <span>Method : {order.paymentMethod || "Paystack"}</span> 
                                         <span>Date : {new Date(order.date).toLocaleDateString()}</span> 
-                                        <span>Payment : Successful</span> 
+                                        <span>Payment : {order.paymentStatus || "Verify with seller"}</span> 
                                     </p> 
                                 </div> 
                             </div> 
