@@ -3,6 +3,7 @@ import { useAppContext } from "@/context/AppContext";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { parseCartKey } from "@/lib/sizing.mjs";
 
 const OrderSummary = () => {
 
@@ -72,7 +73,8 @@ const OrderSummary = () => {
       }
 
       let cartItemsArray = Object.keys(cartItems).map((key) => ({
-        product: key,
+        product: parseCartKey(key).productId,
+        size: parseCartKey(key).size,
         quantity: cartItems[key],
       }));
 
@@ -220,13 +222,15 @@ const OrderSummary = () => {
 
             <input
               type="text"
-              placeholder="Enter promo code"
+              placeholder="Promo codes are not available yet"
+              disabled
               className="flex-grow w-full outline-none p-2.5 text-gray-600 border"
             />
 
             <button
               type="button"
-              className="bg-orange-600 text-white px-9 py-2 hover:bg-orange-700"
+              disabled
+              className="bg-gray-400 text-white px-9 py-2 cursor-not-allowed"
             >
               Apply
             </button>
@@ -271,7 +275,7 @@ const OrderSummary = () => {
             </p>
 
             <p className="font-medium text-gray-800">
-              {currency}{Math.floor(getCartAmount() * 0.02)}
+              {currency}{(Math.round(getCartAmount() * 100 * 0.02) / 100).toFixed(2)}
             </p>
 
           </div>
@@ -282,7 +286,7 @@ const OrderSummary = () => {
 
             <p>
               {currency}
-              {getCartAmount() + Math.floor(getCartAmount() * 0.02)}
+              {(getCartAmount() + Math.round(getCartAmount() * 100 * 0.02) / 100).toFixed(2)}
             </p>
 
           </div>
@@ -294,7 +298,7 @@ const OrderSummary = () => {
       {/* Pay with Paystack */}
       <button
         onClick={createOrder}
-        disabled={paymentLoading}
+        disabled={paymentLoading || getCartCount() === 0}
         className="w-full bg-orange-600 text-white py-3 mt-5 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {paymentLoading ? "Processing Payment..." : "Pay with Paystack"}
