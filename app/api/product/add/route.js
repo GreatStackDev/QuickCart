@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import authSeller from '@/lib/authSeller';
 import connectDB from '@/config/db';
 import Product from '@/models/Product';
+import { getCategorySizeOptions } from '@/lib/sizing.mjs';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -73,6 +74,16 @@ export async function POST(request) {
         const category = formData.get('category');
         const price = formData.get('price');
         const offerPrice = formData.get('offerPrice');
+        let availableSizes;
+        try { availableSizes = JSON.parse(formData.get('availableSizes') || "[]"); }
+        catch { return NextResponse.json({ success: false, message: "Invalid size options." }, { status: 400 }); }
+        const allowedSizes = getCategorySizeOptions(category);
+        if (!Array.isArray(availableSizes) || availableSizes.some(size => !allowedSizes.includes(size)) ||
+            (allowedSizes.length > 0 && availableSizes.length === 0) ||
+            !Number.isFinite(Number(price)) || Number(price) <= 0 ||
+            !Number.isFinite(Number(offerPrice)) || Number(offerPrice) <= 0 ||
+            Number(offerPrice) > Number(price))
+          return NextResponse.json({ success: false, message: "Select valid sizes and enter valid prices." }, { status: 400 });
 
         // Get image files
         const files = formData.getAll('images');
@@ -149,6 +160,7 @@ export async function POST(request) {
             category,
             price: Number(price),
             offerPrice: Number(offerPrice),
+            availableSizes: [...new Set(availableSizes)],
             image,
             date: Date.now(),
         });
