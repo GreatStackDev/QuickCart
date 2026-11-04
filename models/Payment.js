@@ -21,12 +21,19 @@ const PaymentSchema = new mongoose.Schema({
                 ref: 'Product'
             },
 
+            size: { type: String, default: '' },
+
             quantity: {
                 type: Number,
                 required: true
             }
         }
     ],
+
+    amountPesewas: { type: Number },
+    currency: { type: String, default: 'GHS' },
+    email: { type: String },
+    orderId: { type: String },
 
     amount: {
         type: Number,
