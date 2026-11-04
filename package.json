@@ -6,13 +6,20 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint .",
+    "test": "node --test tests/*.test.mjs"
   },
   "dependencies": {
-    "next": "15.1.6",
+    "@clerk/nextjs": "^7.8.2",
+    "axios": "^1.20.0",
+    "cloudinary": "^2.11.0",
+    "inngest": "^3.54.2",
+    "mongoose": "^9.9.4",
+    "next": "^15.2.8",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "react-hot-toast": "^2.5.1"
+    "react-hot-toast": "^2.5.1",
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
