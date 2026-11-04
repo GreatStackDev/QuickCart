@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-import { productsDummyData } from "@/assets/assets";
+import { parseCartKey, makeCartKey, needsSize, getAvailableSizes } from "@/lib/sizing.mjs";
 
 export const AppContext = createContext();
 
@@ -86,17 +86,21 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const addToCart = async (itemId) => {
+  const addToCart = async (itemId, size = "") => {
     try {
-      const cartData = structuredClone(cartItems);
-
-      if (cartData[itemId]) {
-        cartData[itemId] += 1;
-      } else {
-        cartData[itemId] = 1;
+      const product = products.find((item) => item._id === itemId);
+      if (product && needsSize(product) && !getAvailableSizes(product).includes(size)) {
+        toast.error("Select your size on the product page first.");
+        router.push("/product/" + itemId);
+        return false;
       }
-
-      setCartItems(cartData);
+      const key = makeCartKey(itemId, size);
+      const cartData = structuredClone(cartItems);
+      cartData[key] = (cartData[key] || 0) + 1;
+      if (cartData[key] > 25) {
+        toast.error("Maximum 25 units per size.");
+        return false;
+      }
 
       const token = await getToken();
 
@@ -113,18 +117,20 @@ export const AppContextProvider = ({ children }) => {
       );
 
       if (data.success) {
+        setCartItems(cartData);
         toast.success("Product added to cart");
+        return true;
       } else {
         toast.error(data.message);
+        return false;
       }
     } catch (error) {
       console.error("Add to cart error:", error);
 
       toast.error(
-        error.response?.data?.message ||
-          error.message ||
-          "Failed to add product to cart"
+        error.response?.data?.message || error.message || "Failed to add product to cart"
       );
+      return false;
     }
   };
 
@@ -138,7 +144,10 @@ export const AppContextProvider = ({ children }) => {
         cartData[itemId] = quantity;
       }
 
-      setCartItems(cartData);
+      if (!Number.isSafeInteger(quantity) || quantity < 0 || quantity > 25) {
+        toast.error("Choose a quantity between 0 and 25.");
+        return;
+      }
 
       const token = await getToken();
 
@@ -156,6 +165,8 @@ export const AppContextProvider = ({ children }) => {
 
       if (!data.success) {
         toast.error(data.message);
+      } else {
+        setCartItems(cartData);
       }
     } catch (error) {
       console.error("Update cart quantity error:", error);
@@ -184,9 +195,8 @@ export const AppContextProvider = ({ children }) => {
     let totalAmount = 0;
 
     for (const itemId in cartItems) {
-      const itemInfo = products.find(
-        (product) => product._id === itemId
-      );
+      const { productId } = parseCartKey(itemId);
+      const itemInfo = products.find((product) => product._id === productId);
 
       if (itemInfo && cartItems[itemId] > 0) {
         totalAmount += itemInfo.offerPrice * cartItems[itemId];
