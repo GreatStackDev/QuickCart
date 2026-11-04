@@ -6,6 +6,7 @@ import { assets } from "@/assets/assets";
 import Image from "next/image";
 import axios from "axios";
 import { useAppContext } from "@/context/AppContext";
+import { getCategorySizeOptions } from "@/lib/sizing.mjs";
 
 const AddProduct = () => {
 
@@ -17,6 +18,7 @@ const AddProduct = () => {
   const [category, setCategory] = useState('SUIT');
   const [price, setPrice] = useState('');
   const [offerPrice, setOfferPrice] = useState('');
+  const [availableSizes, setAvailableSizes] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,6 +34,7 @@ const AddProduct = () => {
       formData.append('category', category);
       formData.append('price', price);
       formData.append('offerPrice', offerPrice);
+      formData.append('availableSizes', JSON.stringify(availableSizes));
 
       for (let i = 0; i < files.length; i++) {
         if (files[i]) {
@@ -59,6 +62,7 @@ const AddProduct = () => {
         setCategory('SUIT');
         setPrice('');
         setOfferPrice('');
+        setAvailableSizes([]);
 
       } else {
         alert(data.message);
@@ -193,7 +197,7 @@ const AddProduct = () => {
             <select
               id="category"
               className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => { setCategory(e.target.value); setAvailableSizes([]); }}
               value={category}
             >
 
@@ -301,8 +305,24 @@ const AddProduct = () => {
 
         </div>
 
+        {getCategorySizeOptions(category).length > 0 && (
+          <fieldset className="max-w-md border border-gray-200 p-4">
+            <legend className="font-medium px-1">Available sizes *</legend>
+            <p className="text-xs text-gray-500 mb-3">Select only the sizes you can supply.</p>
+            <div className="flex flex-wrap gap-2">
+              {getCategorySizeOptions(category).map(size => (
+                <label key={size} className={`cursor-pointer border px-3 py-2 text-sm ${availableSizes.includes(size) ? "bg-black text-white border-black" : "border-gray-300"}`}>
+                  <input className="sr-only" type="checkbox" checked={availableSizes.includes(size)}
+                    onChange={(e) => setAvailableSizes(prev => e.target.checked ? [...prev, size] : prev.filter(item => item !== size))}/>
+                  {size}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
         <button
           type="submit"
+          disabled={getCategorySizeOptions(category).length > 0 && availableSizes.length === 0}
           className="px-8 py-2.5 bg-black text-white font-medium rounded"
         >
           ADD
