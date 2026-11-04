@@ -10,6 +10,7 @@ import { useParams } from "next/navigation";
 import Loading from "@/components/Loading";
 import { useAppContext } from "@/context/AppContext";
 import React from "react";
+import { getAvailableSizes, needsSize } from "@/lib/sizing.mjs";
 
 const Product = () => {
     const { id } = useParams();
@@ -17,6 +18,7 @@ const Product = () => {
     const { products, router, addToCart, currency } = useAppContext();
 
     const [mainImage, setMainImage] = useState(null);
+    const [selectedSize, setSelectedSize] = useState("");
     const [productData, setProductData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -34,6 +36,7 @@ const Product = () => {
 
             if (data.success) {
                 setProductData(data.product);
+                setSelectedSize("");
             } else {
                 setProductData(null);
             }
@@ -184,7 +187,7 @@ const Product = () => {
                                         </td>
 
                                         <td className="text-gray-800/50">
-                                            Generic
+                                            Morven
                                         </td>
                                     </tr>
 
@@ -211,22 +214,38 @@ const Product = () => {
                             </table>
                         </div>
 
+                        {needsSize(productData) && (
+                          <div className="mt-7">
+                            <label className="block text-sm font-medium text-gray-800 mb-3">Select size *</label>
+                            <div className="flex flex-wrap gap-2" role="group" aria-label="Available sizes">
+                              {getAvailableSizes(productData).map((size) => (
+                                <button key={size} type="button" onClick={() => setSelectedSize(size)}
+                                  aria-pressed={selectedSize === size}
+                                  className={`border px-3 py-2 min-w-12 text-sm ${selectedSize === size ? "bg-black text-white border-black" : "border-gray-300 text-gray-800 hover:border-black"}`}>
+                                  {size}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         <div className="flex items-center mt-10 gap-4">
                             <button
                                 onClick={() =>
-                                    addToCart(productData._id)
+                                    addToCart(productData._id, selectedSize)
                                 }
-                                className="w-full py-3.5 bg-gray-100 text-gray-800/80 hover:bg-gray-200 transition"
+                                disabled={needsSize(productData) && !selectedSize}
+                                className="w-full disabled:opacity-50 py-3.5 bg-gray-100 text-gray-800/80 hover:bg-gray-200 transition"
                             >
                                 Add to Cart
                             </button>
 
                             <button
-                                onClick={() => {
-                                    addToCart(productData._id);
-                                    router.push("/cart");
+                                onClick={async () => {
+                                    const added = await addToCart(productData._id, selectedSize);
+                                    if (added) router.push("/cart");
                                 }}
-                                className="w-full py-3.5 bg-orange-500 text-white hover:bg-orange-600 transition"
+                                disabled={needsSize(productData) && !selectedSize}
+                                className="w-full disabled:opacity-50 py-3.5 bg-orange-500 text-white hover:bg-orange-600 transition"
                             >
                                 Buy now
                             </button>
