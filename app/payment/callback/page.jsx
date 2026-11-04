@@ -4,11 +4,13 @@ import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 import Loading from "@/components/Loading";
+import { useAppContext } from "@/context/AppContext";
 
 const PaymentCallback = () => {
 
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { fetchUserData } = useAppContext();
 
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState("Verifying your payment...");
@@ -28,11 +30,12 @@ const PaymentCallback = () => {
             try {
 
                 const { data } = await axios.get(
-                    `/api/paystack/verify?reference=${reference}`
+                    `/api/paystack/verify?reference=${encodeURIComponent(reference)}`
                 );
 
                 if (data.success) {
-                    setMessage("Payment successful!");
+                    setMessage("Payment verified and order confirmed!");
+                    await fetchUserData();
 
                     setTimeout(() => {
                         router.push("/order-placed");
