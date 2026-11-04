@@ -15,12 +15,18 @@ const OrderSchema = new mongoose.Schema({
                 ref: 'Product'
             },
 
+            size: { type: String, default: '' },
+
             quantity: {
                 type: Number,
                 required: true
             }
         }
     ],
+
+    paymentReference: { type: String, unique: true, sparse: true },
+    paymentMethod: { type: String, default: 'paystack' },
+    paymentStatus: { type: String, default: 'paid' },
 
     amount: {
         type: Number,
