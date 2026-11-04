@@ -1,6 +1,7 @@
 
 'use client'
-import React from "react"; 
+import React from "react";
+import { parseCartKey } from "@/lib/sizing.mjs"; 
 import { assets } from "@/assets/assets"; 
 import OrderSummary from "@/components/OrderSummary"; 
 import Image from "next/image"; 
@@ -42,7 +43,8 @@ const Cart = () => {
               </thead> 
               <tbody> 
                 {Object.keys(cartItems).map((itemId) => { 
-                  const product = products.find(product => product._id === itemId); 
+                  const { productId, size } = parseCartKey(itemId);
+                  const product = products.find(product => product._id === productId); 
  
                   if (!product || cartItems[itemId] <= 0) return null; 
  
@@ -61,13 +63,14 @@ const Cart = () => {
                           </div> 
                           <button 
                             className="md:hidden text-xs text-black mt-1" 
-                            onClick={() => updateCartQuantity(product._id, 0)} 
+                            onClick={() => updateCartQuantity(itemId, 0)} 
                           > 
                             Remove 
                           </button> 
                         </div> 
                         <div className="text-sm hidden md:block"> 
-                          <p className="text-gray-800">{product.name}</p> 
+                          <p className="text-gray-800">{product.name}</p>
+                          {size && <p className="text-xs font-medium">Size: {size}</p>} 
                           <button 
                             className="text-xs text-black mt-1" 
                             onClick={() => updateCartQuantity(product._id, 0)} 
@@ -79,15 +82,15 @@ const Cart = () => {
                       <td className="py-4 md:px-4 px-1 text-gray-600">{currency}{product.offerPrice}</td> 
                       <td className="py-4 md:px-4 px-1"> 
                         <div className="flex items-center md:gap-2 gap-1"> 
-                          <button onClick={() => updateCartQuantity(product._id, cartItems[itemId] - 1)}> 
+                          <button onClick={() => updateCartQuantity(itemId, cartItems[itemId] - 1)}> 
                             <Image 
                               src={assets.decrease_arrow} 
                               alt="decrease_arrow" 
                               className="w-4 h-4" 
                             /> 
                           </button> 
-                          <input onChange={e => updateCartQuantity(product._id, Number(e.target.value))} type="number" value={cartItems[itemId]} className="w-8 border text-center appearance-none"></input> 
-                          <button onClick={() => addToCart(product._id)}> 
+                          <input onChange={e => updateCartQuantity(itemId, Number(e.target.value))} type="number" value={cartItems[itemId]} className="w-8 border text-center appearance-none"></input> 
+                          <button onClick={() => addToCart(product._id, size)}> 
                             <Image 
                               src={assets.increase_arrow} 
                               alt="increase_arrow" 
