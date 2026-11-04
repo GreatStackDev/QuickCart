@@ -1,0 +1,24 @@
+name: Morven prelaunch checks
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZXhhbXBsZS5jb20k
+          CLERK_SECRET_KEY: sk_test_placeholder
+          MONGODB_URI: mongodb://localhost:27017/morven-ci
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
