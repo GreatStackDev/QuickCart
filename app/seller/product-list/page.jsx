@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { assets } from "@/assets/assets";
 import Image from "next/image";
 import { useAppContext } from "@/context/AppContext";
+import { getCategorySizeOptions, getAvailableSizes } from "@/lib/sizing.mjs";
 import Footer from "@/components/seller/Footer";
 import Loading from "@/components/Loading";
 
@@ -86,6 +87,33 @@ const ProductList = () => {
       alert("Failed to delete product");
     }
   }
+
+  const editSizes = async (product) => {
+    const options = getCategorySizeOptions(product.category);
+    if (!options.length) return;
+    const entry = window.prompt(
+      `Available ${product.category} sizes (comma-separated). Choose from: ${options.join(", ")}`,
+      getAvailableSizes(product).join(", ")
+    );
+    if (entry === null) return;
+    const availableSizes = [...new Set(entry.split(",").map(x => x.trim()).filter(Boolean))];
+    if (!availableSizes.length || availableSizes.some(x => !options.includes(x))) {
+      alert("Enter one or more sizes from the available options.");
+      return;
+    }
+    try {
+      const token = await getToken();
+      const response = await fetch("/api/product/sizes", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ productId: product._id, availableSizes }),
+      });
+      const data = await response.json();
+      if (!data.success) throw new Error(data.message || "Unable to save sizes.");
+      setProducts(prev => prev.map(item => item._id === product._id ? { ...item, availableSizes } : item));
+      alert("Available sizes updated.");
+    } catch (error) { alert(error.message); }
+  };
 
   useEffect(() => {
     fetchSellerProduct();
@@ -187,6 +215,13 @@ const ProductList = () => {
                         />
 
                       </button>
+
+                      {getCategorySizeOptions(product.category).length > 0 && (
+                        <button type="button" onClick={() => editSizes(product)}
+                          className="px-2 py-2 border border-black text-black rounded-md hover:bg-gray-100">
+                          Sizes
+                        </button>
+                      )}
 
                       <button
                         onClick={() =>
