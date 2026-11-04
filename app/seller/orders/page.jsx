@@ -141,7 +141,7 @@ const Orders = () => {
                                     /> 
                                     <p className="flex flex-col gap-3"> 
                                         <span className="font-medium text-black"> 
-                                            {order.items.map((item) => item.product.name + ` x ${item.quantity}`).join(", ")} 
+                                            {order.items.map((item) => (item.product?.name || "Product") + (item.size ? ` (Size ${item.size})` : "") + ` x ${item.quantity}`).join(", ")} 
                                         </span> 
                                         <span className="text-gray-500">Items : {order.items.length}</span> 
                                     </p> 
@@ -150,16 +150,16 @@ const Orders = () => {
                                 <div> 
                                     <p className="text-gray-500"> 
                                         <span className="font-medium text-black"> 
-                                            {order.address.fullName} 
+                                            {order.address?.fullName || "Address unavailable"} 
                                         </span> 
                                         <br /> 
-                                        <span>{order.address.area}</span> 
+                                        <span>{order.address?.area || ""}</span> 
                                         <br /> 
                                         <span> 
-                                            {`${order.address.city}, ${order.address.state}`} 
+                                            {`${order.address?.city || ""}, ${order.address?.state || ""}`} 
                                         </span> 
                                         <br /> 
-                                        <span>{order.address.phoneNumber}</span> 
+                                        <span>{order.address?.phoneNumber || ""}</span> 
                                     </p> 
                                 </div> 
  
@@ -169,11 +169,11 @@ const Orders = () => {
  
                                 <div> 
                                     <p className="flex flex-col text-gray-500"> 
-                                        <span>Method : COD</span> 
+                                        <span>Method : {order.paymentMethod || "Not recorded"}</span> 
                                         <span> 
                                             Date : {new Date(order.date).toLocaleDateString()} 
                                         </span> 
-                                        <span>Payment : Pending</span> 
+                                        <span>Payment : {order.paymentStatus || "Not recorded"}</span> 
                                     </p> 
                                 </div> 
                             </div> 
